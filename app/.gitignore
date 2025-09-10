@@ -1,0 +1,36 @@
+# Gradle
+.gradle/
+build/
+*/build/
+
+# Local configuration
+local.properties
+
+# IDE (Android Studio / IntelliJ)
+.idea/
+*.iml
+*.iws
+
+# Logs
+*.log
+
+# Generated APK / AAB
+*.apk
+*.aab
+
+# Kotlin / Java class files
+*.class
+
+# NDK
+obj/
+*.so
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Google Services
+google-services.json
+
+# Android Studio captures
+captures/
