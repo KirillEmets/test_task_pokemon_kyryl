@@ -10,6 +10,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Singleton
 
 private const val BASE_URL = "https://pokeapi.co/api/"
+//private const val IMAGE_URL = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png"
 
 @Module
 @InstallIn(SingletonComponent::class)
