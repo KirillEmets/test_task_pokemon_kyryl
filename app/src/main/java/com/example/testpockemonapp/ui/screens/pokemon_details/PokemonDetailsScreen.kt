@@ -2,6 +2,8 @@ package com.example.testpockemonapp.ui.screens.pokemon_details
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -19,11 +21,13 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.testpockemonapp.data.model.Pokemon
 import com.example.testpockemonapp.data.model.Sprites
+import com.example.testpockemonapp.ui.customimageloader.CustomImage
 import org.w3c.dom.Text
 
 @Composable
@@ -59,8 +63,8 @@ private fun PokemonDetailsContent(
                     }
                 })
         },
-        content = {
-            Box(modifier = modifier.padding(it)) {
+        content = { paddingValues ->
+            Box(modifier = modifier.padding(paddingValues)) {
                 when (state.pokemonState) {
                     PokemonDetailsRequestState.Error -> Text("Error :(")
                     PokemonDetailsRequestState.Loading -> CircularProgressIndicator(
@@ -83,6 +87,14 @@ private fun PokemonDetailsContent(
                                     sprites: ${pokemon.sprites}
                                 """.trimIndent()
                             )
+
+                            pokemon.sprites.frontDefault?.let { url ->
+                                CustomImage(
+                                    modifier = Modifier.fillMaxWidth().aspectRatio(1f),
+                                    url = url,
+                                    contentDescription = pokemon.name
+                                )
+                            }
                         }
                     }
                 }
@@ -104,7 +116,7 @@ private fun PreviewPokemonDetailsScreen() {
                         name = "pikachu",
                         height = 180,
                         weight = 180,
-                        sprites = Sprites(null)
+                        sprites = Sprites("")
                     )
                 ),
             ),

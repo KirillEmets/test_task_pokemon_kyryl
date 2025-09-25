@@ -2,6 +2,7 @@ package com.example.testpockemonapp
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalView
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import com.example.testpockemonapp.ui.screens.pokemon_details.navigateToPokemonDetails
@@ -14,6 +15,7 @@ fun PokemonNavHost(
     navController: NavHostController,
     modifier: Modifier = Modifier,
 ) {
+    LocalView
     NavHost(
         modifier = modifier,
         navController = navController,
