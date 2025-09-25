@@ -1,6 +1,9 @@
 package com.example.testpockemonapp.di
 
 import com.example.testpockemonapp.data.api.PokemonApiService
+import com.example.testpockemonapp.data.repository.PokemonRepository
+import com.example.testpockemonapp.data.repository.PokemonRepositoryImpl
+import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -29,5 +32,10 @@ object NetworkModule {
     @Singleton
     fun providePokemonApiService(retrofit: Retrofit): PokemonApiService {
         return retrofit.create(PokemonApiService::class.java)
+    }
+
+    @Provides
+    fun bindPokemonRepository(impl: PokemonRepositoryImpl): PokemonRepository {
+        return impl
     }
 }
