@@ -20,9 +20,6 @@ class PokemonListViewModel @Inject constructor(
     private val repository: PokemonRepository,
 ) : ViewModel() {
 
-    private val _state = MutableStateFlow(PokemonListState())
-    val state = _state.asStateFlow()
-
     private val _event = Channel<PokemonListEvent>()
     val event = _event.receiveAsFlow()
 

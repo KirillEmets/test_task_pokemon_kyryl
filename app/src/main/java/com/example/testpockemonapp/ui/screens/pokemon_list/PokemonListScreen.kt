@@ -32,7 +32,7 @@ import kotlinx.coroutines.flow.flowOf
 
 @Composable
 fun PokemonListScreen(
-    onAction: (PokemonListAction) -> Unit,
+    onPokemonItemClicked: (name: String) -> Unit,
 ) {
     val viewModel: PokemonListViewModel = hiltViewModel()
     val lazyPagingItems = viewModel.pagingFlow.collectAsLazyPagingItems()
@@ -40,7 +40,8 @@ fun PokemonListScreen(
 
     PokemonListContent(
         modifier = Modifier,
-        lazyPagingItems = lazyPagingItems
+        lazyPagingItems = lazyPagingItems,
+        onItemClick = onPokemonItemClicked
     )
 }
 
@@ -48,11 +49,12 @@ fun PokemonListScreen(
 @Composable
 private fun PokemonListContent(
     lazyPagingItems: LazyPagingItems<PokemonBasic>,
+    onItemClick: (name: String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Scaffold(
         topBar = {
-            CenterAlignedTopAppBar(title = { Text("PokemonList") })
+            CenterAlignedTopAppBar(title = { Text("Pokemon List") })
         },
         content = {
             Box(modifier = modifier.padding(it)) {
@@ -61,7 +63,10 @@ private fun PokemonListContent(
                         val item = lazyPagingItems[index]
 
                         if (item != null) {
-                            PokemonListItem(item)
+                            PokemonListItem(
+                                pokemon = item,
+                                onItemClick = { onItemClick(item.name) }
+                            )
                         }
                     }
                 }
@@ -73,12 +78,14 @@ private fun PokemonListContent(
 @Composable
 private fun PokemonListItem(
     pokemon: PokemonBasic,
-    modifier: Modifier = Modifier
+    onItemClick: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp, horizontal = 16.dp)
+            .padding(vertical = 8.dp, horizontal = 16.dp),
+        onClick = onItemClick
     ) {
         Row(
             modifier = Modifier
@@ -116,6 +123,6 @@ private val mockPokemonData = flowOf(
 private fun PreviewPokemonListScreen() {
     MaterialTheme {
         val items = mockPokemonData.collectAsLazyPagingItems()
-        PokemonListContent(items)
+        PokemonListContent(items, onItemClick = {})
     }
 }

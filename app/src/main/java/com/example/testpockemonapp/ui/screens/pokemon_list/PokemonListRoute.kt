@@ -1,6 +1,5 @@
 package com.example.testpockemonapp.ui.screens.pokemon_list
 
-import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import kotlinx.serialization.Serializable
@@ -8,16 +7,10 @@ import kotlinx.serialization.Serializable
 @Serializable
 data object PokemonListRoute
 
-internal fun NavController.navigateToPokemonList() = navigate(route = PokemonListRoute)
-
-internal fun NavGraphBuilder.pokemonList() {
+internal fun NavGraphBuilder.pokemonList(
+    onPokemonItemClicked: (name: String) -> Unit,
+) {
     composable<PokemonListRoute> { backStackEntry ->
-        PokemonListScreen(
-            onAction = {
-                when (it) {
-                    else -> Unit
-                }
-            }
-        )
+        PokemonListScreen(onPokemonItemClicked = onPokemonItemClicked)
     }
 }

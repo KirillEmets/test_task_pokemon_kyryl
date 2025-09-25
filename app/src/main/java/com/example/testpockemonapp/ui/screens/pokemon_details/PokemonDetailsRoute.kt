@@ -5,18 +5,16 @@ import androidx.navigation.compose.composable
 import kotlinx.serialization.Serializable
 
 @Serializable
-data object PokemonDetailsRoute
+data class PokemonDetailsRoute(val name: String)
 
-internal fun NavController.navigateToPokemonDetails() = navigate(route = PokemonDetailsRoute)
+internal fun NavController.navigateToPokemonDetails(
+    name: String
+) = navigate(route = PokemonDetailsRoute(name))
 
-internal fun NavGraphBuilder.pokemonDetails() {
+internal fun NavGraphBuilder.pokemonDetails(onBack: () -> Unit) {
     composable<PokemonDetailsRoute> { backStackEntry ->
         PokemonDetailsScreen(
-            onAction = {
-                when (it) {
-                    else -> Unit
-                }
-            }
+            onBackClick = onBack
         )
     }
 }
