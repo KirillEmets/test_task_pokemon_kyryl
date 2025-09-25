@@ -1,5 +1,8 @@
 package com.example.testpockemonapp.data.repository
 
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.edit
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingSource
@@ -8,7 +11,10 @@ import com.example.testpockemonapp.data.api.PokemonApiService
 import com.example.testpockemonapp.data.model.Pokemon
 import com.example.testpockemonapp.data.model.PokemonBasic
 import com.example.testpockemonapp.data.model.PokemonListResponse
+import com.example.testpockemonapp.data.preferences.KEY_FAVORITES
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
@@ -22,13 +28,16 @@ interface PokemonRepository {
         limit: Int,
     ): Result<PokemonListResponse>
 
-    suspend fun getPokemonDetails(
-        name: String,
-    ): Result<Pokemon>
+    suspend fun getPokemonDetails(name: String): Result<Pokemon>
+
+    fun getFavorites(): Flow<Set<String>>
+    suspend fun addToFavorites(name: String)
+    suspend fun removeFromFavorites(name: String)
 }
 
 class PokemonRepositoryImpl @Inject constructor(
     private val api: PokemonApiService,
+    private val datastore: DataStore<Preferences>,
 ) : PokemonRepository {
     override suspend fun getPokemonList(
         offset: Int,
@@ -49,13 +58,34 @@ class PokemonRepositoryImpl @Inject constructor(
         }
     }
 
+    override fun getFavorites(): Flow<Set<String>> {
+        return datastore.data.map {
+            it[KEY_FAVORITES] ?: emptySet()
+        }
+    }
+
+    override suspend fun addToFavorites(name: String) {
+        datastore.edit {
+            val currentSet = it[KEY_FAVORITES] ?: emptySet()
+            it[KEY_FAVORITES] = currentSet + name
+        }
+    }
+
+    override suspend fun removeFromFavorites(name: String) {
+        datastore.edit {
+            val currentSet = it[KEY_FAVORITES] ?: emptySet()
+            it[KEY_FAVORITES] = currentSet - name
+        }
+    }
+
     override val pokemonListPager = Pager(
         config = PagingConfig(pageSize = PAGE_SIZE),
         pagingSourceFactory = { MyPagingSource(this) }
     )
 }
 
-private class MyPagingSource(private val repository: PokemonRepository) : PagingSource<String, PokemonBasic>() {
+private class MyPagingSource(private val repository: PokemonRepository) :
+    PagingSource<String, PokemonBasic>() {
     override fun getRefreshKey(state: PagingState<String, PokemonBasic>): String? {
         return "0"
     }
@@ -66,7 +96,9 @@ private class MyPagingSource(private val repository: PokemonRepository) : Paging
 
         val result = repository.getPokemonList(key, params.loadSize)
 
-        val response = result.getOrNull() ?: return LoadResult.Error(result.exceptionOrNull() ?: Throwable("Couldn't load pokemon list"))
+        val response = result.getOrNull() ?: return LoadResult.Error(
+            result.exceptionOrNull() ?: Throwable("Couldn't load pokemon list")
+        )
 
         val nextId = if (response.next != null) response.results.lastOrNull()?.getId() else null
 

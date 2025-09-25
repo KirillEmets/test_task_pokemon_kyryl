@@ -8,7 +8,7 @@ import com.example.testpockemonapp.data.repository.PokemonRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -24,9 +24,10 @@ class PokemonDetailsViewModel @Inject constructor(
     private val pokemonState: MutableStateFlow<PokemonDetailsRequestState> =
         MutableStateFlow(PokemonDetailsRequestState.Loading)
 
-    val state = pokemonState.map { pokemonState ->
+    val state = combine(pokemonState, repository.getFavorites()) { pokemonState, favorites ->
         PokemonDetailsState(
             name = args.name,
+            isInFavorites = favorites.contains(args.name),
             pokemonState = pokemonState
         )
     }.stateIn(
@@ -34,6 +35,7 @@ class PokemonDetailsViewModel @Inject constructor(
         started = SharingStarted.Eagerly,
         initialValue = PokemonDetailsState(
             name = args.name,
+            isInFavorites = false,
             pokemonState = pokemonState.value
         )
     )
@@ -50,6 +52,15 @@ class PokemonDetailsViewModel @Inject constructor(
             pokemonState.value = when (val pokemon = result.getOrNull()) {
                 null -> PokemonDetailsRequestState.Error
                 else -> PokemonDetailsRequestState.Success(pokemon)
+            }
+        }
+    }
+
+    fun toggleFavorites() {
+        viewModelScope.launch {
+            when {
+                state.value.isInFavorites -> repository.removeFromFavorites(args.name)
+                else -> repository.addToFavorites(args.name)
             }
         }
     }

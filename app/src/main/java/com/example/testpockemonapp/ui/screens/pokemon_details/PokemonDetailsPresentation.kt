@@ -2,10 +2,9 @@ package com.example.testpockemonapp.ui.screens.pokemon_details
 
 import com.example.testpockemonapp.data.model.Pokemon
 
-sealed interface PokemonDetailsIntent
-
 data class PokemonDetailsState(
     val name: String,
+    val isInFavorites: Boolean,
     val pokemonState: PokemonDetailsRequestState
 )
 
