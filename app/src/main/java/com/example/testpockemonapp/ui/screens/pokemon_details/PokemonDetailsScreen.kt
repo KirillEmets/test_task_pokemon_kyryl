@@ -78,78 +78,92 @@ private fun PokemonDetailsContent(
             Box(modifier = modifier.padding(paddingValues)) {
                 when (state.pokemonState) {
                     PokemonDetailsRequestState.Error -> Text("Error :(")
-                    PokemonDetailsRequestState.Loading -> CircularProgressIndicator(
-                        modifier = Modifier.align(
-                            Alignment.Center
-                        )
-                    )
+                    else -> {
+                        Card(modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp)
+                        ) {
+                            when (state.pokemonState) {
+                                is PokemonDetailsRequestState.Success -> {
+                                    val pokemon = state.pokemonState.pokemon
 
-                    is PokemonDetailsRequestState.Success -> {
-                        val pokemon = state.pokemonState.pokemon
-                        Card(modifier = Modifier.padding(16.dp)) {
-                            Row(modifier = Modifier.padding(8.dp)) {
-                                Column(modifier = Modifier.weight(1f)) {
-                                    Text(
-                                        style = MaterialTheme.typography.headlineSmall,
-                                        text = "Details"
-                                    )
+                                    Row(modifier = Modifier.padding(8.dp)) {
+                                        Column(modifier = Modifier.weight(1f)) {
+                                            Text(
+                                                style = MaterialTheme.typography.headlineSmall,
+                                                text = "Details"
+                                            )
 
-                                    Row {
-                                        Text("Name: ")
-                                        Text(pokemon.name, fontWeight = FontWeight.Bold)
-                                    }
+                                            Row {
+                                                Text("Name: ")
+                                                Text(pokemon.name, fontWeight = FontWeight.Bold)
+                                            }
 
-                                    Row {
-                                        Text("Height: ")
-                                        Text(
-                                            "${pokemon.heightCm}cm",
-                                            fontWeight = FontWeight.Bold
-                                        )
-                                    }
+                                            Row {
+                                                Text("Height: ")
+                                                Text(
+                                                    "${pokemon.heightCm}cm",
+                                                    fontWeight = FontWeight.Bold
+                                                )
+                                            }
 
-                                    Row {
-                                        Text("Weight: ")
-                                        Text(
-                                            "${pokemon.weightKg}kg",
-                                            fontWeight = FontWeight.Bold
-                                        )
-                                    }
+                                            Row {
+                                                Text("Weight: ")
+                                                Text(
+                                                    "${pokemon.weightKg}kg",
+                                                    fontWeight = FontWeight.Bold
+                                                )
+                                            }
 
-                                    Spacer(modifier = Modifier.height(8.dp))
-                                }
-
-                                val icon = when {
-                                    pokemon.isInFavorites -> Icons.Default.Favorite
-                                    else -> Icons.Default.FavoriteBorder
-                                }
-
-                                IconButton(onClick = onFavoriteButtonClick) {
-                                    Icon(imageVector = icon, contentDescription = "Favorite")
-                                }
-                            }
-
-                            // Spinning is just for fun
-                            var spinAnimationTarget by remember { mutableFloatStateOf(0f) }
-                            val spinAnimation by animateFloatAsState(spinAnimationTarget)
-
-                            pokemon.imageUrl?.let { url ->
-                                CustomImage(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .aspectRatio(1f)
-                                        .graphicsLayer {
-                                            rotationZ = spinAnimation
+                                            Spacer(modifier = Modifier.height(8.dp))
                                         }
-                                        .clickable(
-                                            onClick = {
-                                                spinAnimationTarget += 360f
-                                            },
-                                            interactionSource = null,
-                                            indication = null
-                                        ),
-                                    url = url,
-                                    contentDescription = pokemon.name
-                                )
+
+                                        val icon = when {
+                                            pokemon.isInFavorites -> Icons.Default.Favorite
+                                            else -> Icons.Default.FavoriteBorder
+                                        }
+
+                                        IconButton(onClick = onFavoriteButtonClick) {
+                                            Icon(
+                                                imageVector = icon,
+                                                contentDescription = "Favorite"
+                                            )
+                                        }
+                                    }
+
+                                    // Spinning is just for fun
+                                    var spinAnimationTarget by remember { mutableFloatStateOf(0f) }
+                                    val spinAnimation by animateFloatAsState(spinAnimationTarget)
+
+                                    pokemon.imageUrl?.let { url ->
+                                        CustomImage(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .aspectRatio(1f)
+                                                .graphicsLayer {
+                                                    rotationZ = spinAnimation
+                                                }
+                                                .clickable(
+                                                    onClick = {
+                                                        spinAnimationTarget += 360f
+                                                    },
+                                                    interactionSource = null,
+                                                    indication = null
+                                                ),
+                                            url = url,
+                                            contentDescription = pokemon.name
+                                        )
+                                    }
+
+                                }
+
+                                else -> {
+                                    Box(modifier = Modifier.fillMaxWidth().aspectRatio(1f)) {
+                                        CircularProgressIndicator(
+                                            modifier = Modifier.align(Alignment.Center)
+                                        )
+                                    }
+                                }
                             }
                         }
                     }
@@ -176,6 +190,21 @@ private fun PreviewPokemonDetailsScreen() {
                         isInFavorites = true
                     )
                 ),
+            ),
+            onBackClick = {},
+            onFavoriteButtonClick = {}
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun PreviewPokemonDetailsScreenLoading() {
+    MaterialTheme {
+        PokemonDetailsContent(
+            state = PokemonDetailsState(
+                name = "Pikachu",
+                pokemonState = PokemonDetailsRequestState.Loading
             ),
             onBackClick = {},
             onFavoriteButtonClick = {}
