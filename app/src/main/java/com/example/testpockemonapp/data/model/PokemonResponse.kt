@@ -18,8 +18,6 @@ data class PokemonListItemResponse(
     fun getId(): Int {
         return url.split("/").dropLast(1).last().toInt()
     }
-
-    fun toDomain(): PokemonListItem = PokemonListItem(name, url)
 }
 
 data class PokemonResponse(
@@ -29,12 +27,13 @@ data class PokemonResponse(
     val weight: Int,
     val sprites: Sprites,
 ) {
-    fun toDomain(): Pokemon = Pokemon(
+    fun toDomain(isInFavorites: Boolean): Pokemon = Pokemon(
         id = id,
         name = name,
         heightCm = height * 10,
         weightKg = weight / 10,
-        imageUrl = sprites.frontDefault
+        imageUrl = sprites.frontDefault,
+        isInFavorites = isInFavorites
     )
 }
 

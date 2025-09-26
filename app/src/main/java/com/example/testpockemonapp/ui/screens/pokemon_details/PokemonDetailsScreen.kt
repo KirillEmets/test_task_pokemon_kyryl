@@ -119,7 +119,7 @@ private fun PokemonDetailsContent(
                                 }
 
                                 val icon = when {
-                                    state.isInFavorites -> Icons.Default.Favorite
+                                    pokemon.isInFavorites -> Icons.Default.Favorite
                                     else -> Icons.Default.FavoriteBorder
                                 }
 
@@ -172,9 +172,10 @@ private fun PreviewPokemonDetailsScreen() {
                         name = "Pikachu",
                         heightCm = 120,
                         weightKg = 30,
-                        imageUrl = ""
-                    )                ),
-                isInFavorites = true
+                        imageUrl = "",
+                        isInFavorites = true
+                    )
+                ),
             ),
             onBackClick = {},
             onFavoriteButtonClick = {}

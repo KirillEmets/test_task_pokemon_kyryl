@@ -8,6 +8,8 @@ import com.example.testpockemonapp.domain.repository.PokemonRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -24,10 +26,9 @@ class PokemonDetailsViewModel @Inject constructor(
     private val pokemonState: MutableStateFlow<PokemonDetailsRequestState> =
         MutableStateFlow(PokemonDetailsRequestState.Loading)
 
-    val state = combine(pokemonState, repository.getFavorites()) { pokemonState, favorites ->
+    val state = combine(pokemonState) { (pokemonState) ->
         PokemonDetailsState(
             name = args.name,
-            isInFavorites = favorites.contains(args.name),
             pokemonState = pokemonState
         )
     }.stateIn(
@@ -35,7 +36,6 @@ class PokemonDetailsViewModel @Inject constructor(
         started = SharingStarted.Eagerly,
         initialValue = PokemonDetailsState(
             name = args.name,
-            isInFavorites = false,
             pokemonState = pokemonState.value
         )
     )
@@ -47,21 +47,19 @@ class PokemonDetailsViewModel @Inject constructor(
     private fun loadData() {
         viewModelScope.launch {
             pokemonState.value = PokemonDetailsRequestState.Loading
-            val result = repository.getPokemonDetails(args.name)
+            val resultFlow = repository.getPokemonDetails(args.name)
 
-            pokemonState.value = when (val pokemon = result.getOrNull()) {
-                null -> PokemonDetailsRequestState.Error
-                else -> PokemonDetailsRequestState.Success(pokemon)
+            resultFlow.catch {
+                pokemonState.value = PokemonDetailsRequestState.Error
+            }.collect { pokemon ->
+                pokemonState.value = PokemonDetailsRequestState.Success(pokemon)
             }
         }
     }
 
     fun toggleFavorites() {
         viewModelScope.launch {
-            when {
-                state.value.isInFavorites -> repository.removeFromFavorites(args.name)
-                else -> repository.addToFavorites(args.name)
-            }
+            repository.toggleIsInFavorites(args.name)
         }
     }
 }

@@ -4,7 +4,6 @@ import com.example.testpockemonapp.domain.model.Pokemon
 
 data class PokemonDetailsState(
     val name: String,
-    val isInFavorites: Boolean,
     val pokemonState: PokemonDetailsRequestState
 )
 
