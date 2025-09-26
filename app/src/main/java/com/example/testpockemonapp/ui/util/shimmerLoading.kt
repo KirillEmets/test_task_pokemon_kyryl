@@ -1,4 +1,4 @@
-package com.example.testpockemonapp.ui.composables
+package com.example.testpockemonapp.ui.util
 
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
