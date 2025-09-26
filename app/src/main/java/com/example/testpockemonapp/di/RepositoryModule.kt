@@ -4,8 +4,8 @@ import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
-import com.example.testpockemonapp.data.repository.PokemonRepository
 import com.example.testpockemonapp.data.repository.PokemonRepositoryImpl
+import com.example.testpockemonapp.domain.repository.PokemonRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

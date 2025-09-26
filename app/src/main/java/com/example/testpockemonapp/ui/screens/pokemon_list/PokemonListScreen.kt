@@ -27,7 +27,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
-import com.example.testpockemonapp.data.model.PokemonBasic
+import com.example.testpockemonapp.domain.model.PokemonListItem
 import kotlinx.coroutines.flow.flowOf
 
 @Composable
@@ -48,7 +48,7 @@ fun PokemonListScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun PokemonListContent(
-    lazyPagingItems: LazyPagingItems<PokemonBasic>,
+    lazyPagingItems: LazyPagingItems<PokemonListItem>,
     onItemClick: (name: String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -77,7 +77,7 @@ private fun PokemonListContent(
 
 @Composable
 private fun PokemonListItem(
-    pokemon: PokemonBasic,
+    pokemon: PokemonListItem,
     onItemClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -112,8 +112,8 @@ private fun PokemonListItem(
 private val mockPokemonData = flowOf(
     PagingData.from(
         listOf(
-            PokemonBasic("Pikachu", "url1"),
-            PokemonBasic("Bulbasaur", "url1"),
+            PokemonListItem("Pikachu", "url1"),
+            PokemonListItem("Bulbasaur", "url1"),
         )
     )
 )

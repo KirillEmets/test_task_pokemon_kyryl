@@ -36,8 +36,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.testpockemonapp.data.model.Pokemon
-import com.example.testpockemonapp.data.model.Sprites
+import com.example.testpockemonapp.domain.model.Pokemon
 import com.example.testpockemonapp.ui.customimageloader.CustomImage
 
 @Composable
@@ -103,7 +102,7 @@ private fun PokemonDetailsContent(
                                     Row {
                                         Text("Height: ")
                                         Text(
-                                            "${pokemon.height * 10}cm",
+                                            "${pokemon.heightCm}cm",
                                             fontWeight = FontWeight.Bold
                                         )
                                     }
@@ -111,7 +110,7 @@ private fun PokemonDetailsContent(
                                     Row {
                                         Text("Weight: ")
                                         Text(
-                                            "${pokemon.weight / 10}kg",
+                                            "${pokemon.weightKg}kg",
                                             fontWeight = FontWeight.Bold
                                         )
                                     }
@@ -133,7 +132,7 @@ private fun PokemonDetailsContent(
                             var spinAnimationTarget by remember { mutableFloatStateOf(0f) }
                             val spinAnimation by animateFloatAsState(spinAnimationTarget)
 
-                            pokemon.sprites.frontDefault?.let { url ->
+                            pokemon.imageUrl?.let { url ->
                                 CustomImage(
                                     modifier = Modifier
                                         .fillMaxWidth()
@@ -169,13 +168,12 @@ private fun PreviewPokemonDetailsScreen() {
                 name = "Pikachu",
                 pokemonState = PokemonDetailsRequestState.Success(
                     Pokemon(
-                        id = 10,
-                        name = "pikachu",
-                        height = 18,
-                        weight = 1000,
-                        sprites = Sprites("")
-                    )
-                ),
+                        id = 1,
+                        name = "Pikachu",
+                        heightCm = 120,
+                        weightKg = 30,
+                        imageUrl = ""
+                    )                ),
                 isInFavorites = true
             ),
             onBackClick = {},
