@@ -12,6 +12,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
@@ -19,6 +20,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -30,6 +32,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.LoadState
+import androidx.paging.LoadStates
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -46,20 +49,30 @@ fun PokemonListScreen(
 
     PokemonListContent(
         modifier = Modifier,
-        lazyPagingItems = lazyPagingItems,
+        listSize = lazyPagingItems.itemCount,
+        getItem = lazyPagingItems::get,
+        isLoading = lazyPagingItems.loadState.refresh is LoadState.Loading,
+        isAppending = lazyPagingItems.loadState.append is LoadState.Loading,
+        isError = lazyPagingItems.loadState.refresh is LoadState.Error,
         onItemClick = onPokemonItemClicked,
         onFavoriteIconClick = viewModel::toggleFavorites,
-        onDeleteIconClick = viewModel::deletePokemon
+        onDeleteIconClick = viewModel::deletePokemon,
+        onRetryClick = lazyPagingItems::retry
     )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun PokemonListContent(
-    lazyPagingItems: LazyPagingItems<PokemonListItem>,
+    listSize: Int,
+    getItem: (i: Int) -> PokemonListItem?,
+    isLoading: Boolean,
+    isAppending: Boolean,
+    isError: Boolean,
     onItemClick: (name: String) -> Unit,
     onFavoriteIconClick: (name: String) -> Unit,
     onDeleteIconClick: (name: String) -> Unit,
+    onRetryClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Scaffold(
@@ -68,21 +81,25 @@ private fun PokemonListContent(
         },
         content = {
             Box(modifier = modifier.padding(it)) {
-                when (lazyPagingItems.loadState.refresh) {
-                    is LoadState.Loading -> {
+                when {
+                    isLoading -> {
                         ListLoadingState()
+                    }
+
+                    isError -> {
+                        ListErrorState(onRetryClick = onRetryClick)
                     }
 
                     else -> {
                         LazyColumn(modifier = Modifier.fillMaxSize()) {
                             items(
-                                count = lazyPagingItems.itemCount,
+                                count = listSize,
                                 key = { index ->
-                                    val item = lazyPagingItems[index]
+                                    val item = getItem(index)
                                     item?.name.orEmpty()
                                 },
                                 itemContent = { index ->
-                                    val item = lazyPagingItems[index]
+                                    val item = getItem(index)
 
                                     if (item != null) {
                                         PokemonListItemCard(
@@ -101,7 +118,7 @@ private fun PokemonListContent(
                                 }
                             )
 
-                            if (lazyPagingItems.loadState.append is LoadState.Loading) {
+                            if (isAppending) {
                                 item {
                                     Box(modifier = Modifier.fillMaxWidth()) {
                                         CircularProgressIndicator(
@@ -178,32 +195,79 @@ fun ListLoadingState(modifier: Modifier = Modifier) {
     }
 }
 
-private val mockPokemonData = flowOf(
-    PagingData.from(
-        listOf(
-            PokemonListItem(
-                name = "Pikachu",
-                url = "url1",
-                isInFavorites = true
-            ),
-            PokemonListItem(
-                name = "Bulbasaur",
-                url = "url1",
-                isInFavorites = false
-            ),
-        )
+@Composable
+fun ListErrorState(onRetryClick: () -> Unit, modifier: Modifier = Modifier) {
+    Column(modifier = modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
+        Text("Oh no! We couldn't load your pokemons for you.")
+        OutlinedButton(onRetryClick) { Text("Retry") }
+    }
+}
+
+private val mockPokemonData = listOf(
+    PokemonListItem(
+        name = "Pikachu",
+        url = "url1",
+        isInFavorites = true
+    ),
+    PokemonListItem(
+        name = "Bulbasaur",
+        url = "url1",
+        isInFavorites = false
     )
 )
 
+
 @Preview
 @Composable
-private fun PreviewPokemonListScreen() {
+private fun PreviewPokemonListScreenAppending() {
     MaterialTheme {
-        val items = mockPokemonData.collectAsLazyPagingItems()
+        val items = mockPokemonData
         PokemonListContent(
-            items, onItemClick = {},
+            listSize = items.size,
+            getItem = items::get,
+            onItemClick = {},
             onFavoriteIconClick = {},
             onDeleteIconClick = {},
+            isLoading = false,
+            isAppending = false,
+            isError = false,
+            onRetryClick = {},
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun PreviewPokemonListScreenLoading() {
+    MaterialTheme {
+        PokemonListContent(
+            listSize = 0,
+            getItem = { null },
+            onItemClick = {},
+            onFavoriteIconClick = {},
+            onDeleteIconClick = {},
+            isLoading = true,
+            isAppending = false,
+            isError = false,
+            onRetryClick = {},
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun PreviewPokemonListScreenError() {
+    MaterialTheme {
+        PokemonListContent(
+            listSize = 0,
+            getItem = { null },
+            onItemClick = {},
+            onFavoriteIconClick = {},
+            onDeleteIconClick = {},
+            isLoading = false,
+            isAppending = false,
+            isError = true,
+            onRetryClick = {},
         )
     }
 }
